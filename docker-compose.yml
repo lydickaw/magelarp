@@ -1,0 +1,22 @@
+version: '3.8'
+services:
+  redis:
+    image: redis:7.2-alpine
+    restart: always
+    expose:
+      - 6379
+    command: redis-server --save 60 1 --loglevel warning
+    volumes:
+      - redis-data:/data
+
+  app:
+    build:
+      dockerfile: Dockerfile.app
+    ports:
+      - "8080:80"
+    network_mode: service:redis
+    depends_on: 
+      - redis
+
+volumes:
+  redis-data:

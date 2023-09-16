@@ -1,0 +1,10 @@
+version: '3.8'
+services:
+  devcontainer:
+    image: mcr.microsoft.com/devcontainers/javascript-node:20-bullseye
+    volumes:
+      - ../..:/workspaces:cached
+    network_mode: service:redis
+    command: sleep infinity    
+    depends_on: 
+      - redis
