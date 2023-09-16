@@ -3,17 +3,15 @@ services:
   redis:
     image: redis:7.2-alpine
     restart: always
-    expose:
-      - 6379
-    command: redis-server --save 60 1 --loglevel warning
+    network_mode: "host"
+    command: redis-server --bind 127.0.0.1 --save 60 1 --loglevel warning
     volumes:
       - redis-data:/data
 
   app:
     build:
       dockerfile: Dockerfile.app
-    ports:
-      - "80:8080"
+    network_mode: "host"
     depends_on: 
       - redis
 
