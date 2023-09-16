@@ -14,7 +14,6 @@ services:
       dockerfile: Dockerfile.app
     ports:
       - "8080:80"
-    network_mode: service:redis
     depends_on: 
       - redis
 
