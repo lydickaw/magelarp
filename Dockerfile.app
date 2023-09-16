@@ -8,6 +8,7 @@ RUN npm install
 COPY . .
 
 WORKDIR /usr/src/app/web-client
+RUN npm install
 RUN npm run build
 
 WORKDIR /usr/src/app
