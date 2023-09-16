@@ -23,7 +23,7 @@ app.use(cookieParser());
 // Initialize database connection.
 //
 
-const redisClient = createClient(6379, 'redis')
+const redisClient = createClient({host: 'redis', port: 6379});
 redisClient.on('error', err => console.error('Redis client error', err));
 await redisClient.connect();
 
