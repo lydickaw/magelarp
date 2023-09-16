@@ -1,9 +1,9 @@
 {
   "name": "web-client",
-  "description": "Webcomponent web-client following open-wc recommendations",
-  "license": "MIT",
-  "author": "web-client",
-  "version": "0.0.0",
+  "description": "Web client for a Mage: The Awakening (MET) LARP CMS",
+  "license": "MIT-0",
+  "author": "Adam Lydick <lydickaw@gmail.com>",
+  "version": "0.1.0",
   "type": "module",
   "scripts": {
     "lint": "eslint --ext .js,.html . --ignore-path .gitignore && prettier \"**/*.js\" --check --ignore-path .gitignore",
