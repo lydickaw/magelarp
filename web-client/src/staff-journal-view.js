@@ -129,15 +129,16 @@ class StaffJournalView extends LitElement {
             tagsInput.value = '';
             threadInput.value = '';
 
+            const iam = this._context.data().iam;
+
             // Add placeholder entry to local data.
-            /* TODO
-            const data = this._context.data();
-            data.downtime.push({
-                uid: "LOCAL_PLACEHOLDER",
-                is_complete: false,
-                proposal: proposal,
-                player_updated_ts: String(Date.now())
-            }); */
+            this._context.data().journal.push({
+                staff: iam,
+                tags: tags,
+                timestamp: String(Date.now()),
+                thread: thread,
+                description_md: desc
+            });
 
             // Refresh view.
             this.requestUpdate();
@@ -153,12 +154,10 @@ class StaffJournalView extends LitElement {
         this._context.addEventListener("updated", () => this.requestUpdate());
     }
 
-    // TODO: fix styling on input fields
-    // TODO: align button right
-    // TODO: refresh inline after XHR
-
     // TODO: warn if creating a new thread (possible typo)
     // TODO: warn if creating a new tag (typo)
+    // TODO: allow delete
+    // TODO: allow edit (will need UID + server-side merge + defering local update till remove UID assignment)
 
     render() {
         const data = this._context.data();
