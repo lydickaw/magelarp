@@ -108,10 +108,26 @@ class StaffDowntimeWidget extends LitElement {
         }
     }
 
+    _fireComplete() {
+        this.dispatchEvent(new CustomEvent('complete', { bubbles: true, composed: true }));
+    }
+
+    _getDowntimeEntry() {
+        const char = this._context.data().characters.find(x => x.key === this.key);
+        if (!char) return null;
+        return char.downtime.find(x => x.uid === this.uid);
+    }
+
     _handleReject() {
         if (!this._hasComment) return;
         const textarea = this.renderRoot.querySelector('#comment');
         this._context.rejectDowntime(this.key, this.uid, textarea.value);
+
+        const toUpdate = this._getDowntimeEntry();
+        toUpdate.staff_comment = textarea.value;
+        toUpdate.staff_updated_ts = String(Date.now());
+
+        this._fireComplete();
     }
 
     _handleAccept() {
@@ -119,6 +135,13 @@ class StaffDowntimeWidget extends LitElement {
         const tags = this.renderRoot.querySelector('#tags');
         const parsedTags = tags.value.split(',').map(x => x.trim());
         this._context.acceptDowntime(this.key, this.uid, textarea.value, parsedTags);
+
+        const toUpdate = this._getDowntimeEntry();
+        toUpdate.is_complete = true;
+        toUpdate.staff_updated_ts = String(Date.now());
+
+        // TODO: need to update Character view as well (to refresh tags applied).
+        this._fireComplete();
     }
 
     constructor() {
@@ -138,7 +161,6 @@ class StaffDowntimeWidget extends LitElement {
         // approve (set player tag(s))          | 
         // reject w/ comment                    || Button #2 (reuse comment field)
 
-        // TODO: pretty layout.
         // TODO: warn if unknown tags are provided (help catch typos, etc)
         // TODO: show previous staff comment
         // TODO: make transactional so multiple staff updating don't step on each other.

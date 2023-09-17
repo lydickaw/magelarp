@@ -12,6 +12,14 @@ class StaffDowntimeView extends LitElement {
             font-family: "EB Garamond";
             font-size: 22px;
         }
+
+        div.no-downtime-msg {
+            margin-left: 2px;
+            margin-top: 20px;
+            margin-bottom: 20px;
+            font-family: 'EB Garamond';
+            font-size: 18px;
+        }
   `;
 
     constructor() {
@@ -20,29 +28,39 @@ class StaffDowntimeView extends LitElement {
         this._context.addEventListener("updated", () => this.requestUpdate());
     }
 
-    // TODO: pretty layout
-    // TODO: show placeholder when there are no downtimes pending.
+    _handleRefreshAfterSubmit() {
+        this.requestUpdate();
+    }
+
     // TODO: show instructions.
 
     render() {
         const templates = [];
         if (this._context.data() !== null) {
             for (const character of this._context.data().characters) {
-                if (character.downtime.length > 0) {
-                    templates.push(html`<h2>${character.shadow_name} / ${character.player_name}</h2>`);
+                const entries = [];
+                for (const downtime of character.downtime) {
+                    if (Number(downtime.staff_updated_ts || "0") < Number(downtime.player_updated_ts)) {
+                        entries.push(html`
+                            <staff-downtime-widget 
+                                @complete=${this._handleRefreshAfterSubmit}
+                                key='${character.key}' 
+                                uid='${downtime.uid}' 
+                                proposal='${downtime.proposal}'
+                                staffnote='${downtime.staff_comment}'>
+                            </staff-downtime-widget>`);
+                    }
                 }
 
-                for (const downtime of character.downtime) {
-                    templates.push(html`
-                        <staff-downtime-widget 
-                            key='${character.key}' 
-                            uid='${downtime.uid}' 
-                            proposal='${downtime.proposal}'
-                            staffnote='${downtime.staff_comment}'>
-                        </staff-downtime-widget>`);
+                if (entries.length > 0) {
+                    templates.push(html`<h2>${character.shadow_name} / ${character.player_name}</h2>`);
+                    templates.push(...entries);
                 }
             }
         }
+
+        if (templates.length === 0) return html`<div class="no-downtime-msg">No downtime remaining! Nice work.</div>`;
+
         return html`${templates}`;
     }
 }
