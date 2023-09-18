@@ -44,7 +44,7 @@ class LarpServiceContext extends EventTarget {
 
         if (!res.ok) {
             this._error = await res.text();
-        }        
+        }
     }
 
     async submitDowntime(proposal, opt_uid) {
@@ -70,7 +70,7 @@ class LarpServiceContext extends EventTarget {
         }
     }
 
-    async rejectDowntime(player_key, uid, staff_comment) {    
+    async rejectDowntime(player_key, uid, staff_comment) {
         const json = {
             player_key: player_key,
             uid: uid,
@@ -129,7 +129,7 @@ class LarpServiceContext extends EventTarget {
         }
     }
 
-    async deleteTag(key, tag) {            
+    async deleteTag(key, tag) {
         const body = JSON.stringify({ player_key: key, tags: [tag] });
         const url = 'api/removeTags?key=' + this._staff_key;
         const res = await fetch(url, {
@@ -138,6 +138,37 @@ class LarpServiceContext extends EventTarget {
             cache: 'no-cache',
             headers: { 'Content-Type': 'application/json' },
             body: body
+        });
+
+        if (!res.ok) {
+            this._error = await res.text();
+        }
+    }
+
+    async addTags(key, tags) {
+        const body = JSON.stringify({ player_key: key, tags: tags });
+        const url = 'api/addTags?key=' + this._staff_key;
+        const res = await fetch(url, {
+            method: 'POST',
+            mode: 'same-origin',
+            cache: 'no-cache',
+            headers: { 'Content-Type': 'application/json' },
+            body: body
+        });
+
+        if (!res.ok) {
+            this._error = await res.text();
+        }
+    }
+
+    async publishDrafts() {
+        const url = 'api/releaseJournalDrafts?key=' + this._staff_key;
+        const res = await fetch(url, {
+            method: 'POST',
+            mode: 'same-origin',
+            cache: 'no-cache',
+            headers: { 'Content-Type': 'application/json' },
+            body: ''
         });
 
         if (!res.ok) {

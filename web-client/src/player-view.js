@@ -16,7 +16,10 @@ class PlayerView extends LitElement {
             background-color: #FFFFFF; 
             width: 980px;
             margin: 0 auto;
+            margin-top: 22px;
             padding-bottom: 12px;
+            padding-right: 20px;
+            padding-left: 20px;
         }
 
         button {
@@ -42,7 +45,6 @@ class PlayerView extends LitElement {
         }
 
         footer {
-            background-color: #000000; 
             color: #FFFFFF;
             width: 980px;
             text-align: center;

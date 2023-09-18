@@ -133,7 +133,11 @@ class StaffDowntimeWidget extends LitElement {
     _handleAccept() {
         const textarea = this.renderRoot.querySelector('#comment');
         const tags = this.renderRoot.querySelector('#tags');
-        const parsedTags = tags.value.split(',').map(x => x.trim());
+        const parsedTags = tags.value.split(',').map(x => x.trim()).filter(x => x.length > 0);
+        if (parsedTags.length === 0) {
+            return;
+        }
+
         this._context.acceptDowntime(this.key, this.uid, textarea.value, parsedTags);
 
         const toUpdate = this._getDowntimeEntry();

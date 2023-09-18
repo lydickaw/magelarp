@@ -14,8 +14,10 @@ class StaffView extends LitElement {
             background-color: #FFFFFF; 
             width: 980px;
             margin: 0 auto;
+            margin-top: 22px;
             padding-left: 20px;
-            padding-bottom: 12px;
+            padding-right: 20px;
+            padding-bottom: 12px;            
         }
 
         div.menu {
@@ -49,7 +51,6 @@ class StaffView extends LitElement {
         }
 
         footer {
-            background-color: #000000; 
             color: #FFFFFF;
             width: 980px;
             text-align: center;

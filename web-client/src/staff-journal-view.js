@@ -1,6 +1,6 @@
 import { LitElement, html, css } from 'lit';
-import {join} from 'lit/directives/join.js';
-import {map} from 'lit/directives/map.js';
+import { join } from 'lit/directives/join.js';
+import { map } from 'lit/directives/map.js';
 import { GetLarpServiceContext } from './service-context';
 import { timestampToPretty } from './timestamp-util';
 
@@ -38,6 +38,15 @@ class StaffJournalView extends LitElement {
 
         span.journal-tag {
             background-color: #000000;
+            color: #FFFFFF;
+            padding-left: 6px;
+            padding-right: 6px;
+            padding-top: 1px;
+            padding-bottom: 1px;
+        }
+
+        span.journal-unpublished-tag {
+            background-color: #20474d;
             color: #FFFFFF;
             padding-left: 6px;
             padding-right: 6px;
@@ -106,7 +115,28 @@ class StaffJournalView extends LitElement {
             display: flex;
             justify-content: flex-end;
         }
+
+        div.publish-drafts-form {
+            margin-top: 42px;
+            text-align: center;
+            font-style: italic;
+            font-family: 'EB Garamond';
+            font-size: 17px;
+        }
   `;
+
+    async _handlePublishDrafts() {
+        const btn = this.renderRoot.querySelector('#btn-publish');
+        btn.disabled = true;
+
+        try {
+            await this._context.publishDrafts();
+            this._context.data().watermark = Date.now();
+            this.requestUpdate();
+        } finally {
+            btn.disabled = false;
+        }
+    }
 
     async _handleSubmitEntry() {
         const textarea = this.renderRoot.querySelector('#journal-text');
@@ -197,14 +227,17 @@ class StaffJournalView extends LitElement {
 
             for (const entry of thread.entries) {
                 const ts = Number(entry.timestamp);
+                const draftMarker = (ts > this._context.data().watermark) ? 
+                    html`<span class="journal-unpublished-tag">unpublished</span>` : html``;
                 journal_entries.push(html`<div class="journal-entry">
                  <div class="journal-text">                
                     <markdown-text text="${entry.description_md}"></markdown-text>
-                    <div class="journal-meta">
+                    <div class="journal-meta">               
+                        ${draftMarker}
                         ${join(
-                            map(entry.tags, (x => html`<span class="journal-tag">${x}</span>`)),
-                            html`, `
-                        )} 
+                    map(entry.tags, (x => html`<span class="journal-tag">${x}</span>`)),
+                    html`, `
+                )} 
                         <span class="journal-meta-divider">--</span> 
                         ${timestampToPretty(ts)} by ${entry.staff}</span>
                     </div>
@@ -228,6 +261,11 @@ class StaffJournalView extends LitElement {
                   <button id="journal-submit" @click=${this._handleSubmitEntry}>Submit</button>
                 </div>
             </form>
+            </div>
+
+            <div class="publish-drafts-form">
+                Journal entries last published ${timestampToPretty(this._context.data().watermark)}.
+                <button id="btn-publish" @click=${this._handlePublishDrafts}>Publish Drafts</button>
             </div>
     `;
     }

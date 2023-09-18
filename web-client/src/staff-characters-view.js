@@ -39,6 +39,49 @@ class StaffCharactersView extends LitElement {
             margin-right: 6px;
         }
 
+        input.add-tag {
+            width: 100px;
+            font-family: "EB Garamond";
+            font-size: 14px;
+            display: inline-block;
+            border-style: solid;
+            border-width: 1px;
+            border-color: #999999;
+            margin-top: 2px;
+            margin-bottom: 2px;
+            padding-top: 0px;
+            padding-bottom: 0px;
+        }
+
+        input.add-tag:focus {
+            padding-top: 2px;
+            padding-bottom: 2px;
+            margin-top: 0px;
+            margin-bottom: 0px;
+        }
+
+        div.char-entry button {
+            font-family: "EB Garamond";
+            font-size: 14px;
+            display: inline-block;
+            background-color: #ffffff;
+            border-style: solid;
+            border-width: 1px;
+            border-color: #999999;
+            font-weight: normal;
+            transition: all 0.5s linear;
+            margin-top: 2px;
+            margin-bottom: 2px;
+            margin-left: -3px;
+            padding-top: 0px;
+            padding-bottom: 0px;
+        }
+        
+        div.char-entry button:hover {
+            background-color: #f5f5f5;
+            border-color: #000000;
+        }
+
         h2 {
             margin-bottom: 12px;
             font-family: "EB Garamond";
@@ -57,11 +100,10 @@ class StaffCharactersView extends LitElement {
     }
 
     // TODO:
-    // Add tag [make input outline invisible-ish until mouseover]        
     // Get link
-    // Regenerate link        
 
     // TODO: FUTURE:
+    // Regenerate link
     // search for players with stat
     // audit trail (journal entries for Admin Actions)
     // Easy undo from admin actions page (instead of safeguards)
@@ -72,6 +114,20 @@ class StaffCharactersView extends LitElement {
 
         // Refresh local view.
         char.tags = char.tags.filter(x => x !== tag);
+        this.requestUpdate();
+    }
+
+    async _handleAddTags(char) {
+        const tags = this.renderRoot.querySelector('#tags-' + char.key);    
+        const parsedTags = tags.value.split(',').map(x => x.trim()).filter(x => x.length > 0);
+        if (parsedTags.length === 0) {
+            return;
+        }
+
+        await this._context.addTags(char.key, parsedTags);
+
+        tags.value = '';
+        char.tags.push(...parsedTags);
         this.requestUpdate();
     }
 
@@ -109,7 +165,8 @@ class StaffCharactersView extends LitElement {
                 </div>
                 <div class="char-tags">
                     ${map(char.tags, x => this._renderTag(char, x))}
-                    <input class="add-tag"></input>
+                    <input id="${'tags-' + char.key}" class="add-tag" placeholder="add tags...">
+                    </input><button @click=${this._handleAddTags.bind(this, char)}>+</button>
                 </div>
             </div>
         `;
