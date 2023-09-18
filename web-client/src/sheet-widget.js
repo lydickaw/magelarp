@@ -64,6 +64,7 @@ const WIZARD_TEMPLATE = [
 class SheetWidget extends LitElement {
     static properties = {
         edit: { type: Boolean },
+        _errors: { state: true }
     }
 
     static styles = css`
@@ -155,6 +156,19 @@ class SheetWidget extends LitElement {
         border-color: #000000;
     }
 
+    div.edit-sheet-err {
+        font-family: "EB Garamond", serif;
+        font-weight: 500;        
+    }
+
+    span.edit-sheet-err-ex {
+        font-family: "Courier Prime", monospace;
+        font-size: 12px;
+        border: #aaaaaa solid 1px;
+        padding: 3px;
+        background-color: #eeeeee;
+    }
+
     div.edit-sheet-instructions {        
         font-family: "EB Garamond", serif;
         font-weight: 500;
@@ -209,11 +223,11 @@ class SheetWidget extends LitElement {
         super();
         this.edit = false;
         this._context = GetLarpServiceContext();
+        this._errors = [];
     }
 
     statsToJson(stats) {
-        const errors = [];
-        const rxStat = /^\s*([a-zA-Z]+)\s*(\[.*\])?\s*:\s*(\d+)\s*$/;
+        const rxStat = /^([a-zA-Z\s]+)(\[.*\])?\s*:\s*(\d+)\s*$/;
         const json = {};
 
         for (const line of stats.split(/\r?\n/)) {
@@ -225,11 +239,12 @@ class SheetWidget extends LitElement {
             // Try to parse stat line.
             const match = line.match(rxStat);
             if (match === null) {
-                errors.push("Did not recognize: " + line);
+                this._errors.push(line);
+                continue;
             }
 
-            const stat = match[1];
-            const qualifier = match[2];
+            const stat = match[1].trim();
+            const qualifier = match[2] && match[2].trim();
             const val = match[3];
 
             // TODO: verify stat is a known stat
@@ -241,8 +256,8 @@ class SheetWidget extends LitElement {
             json[field] = Number(val);
         }
 
-        if (errors.length > 0) {
-            // TODO: raise exception w/ validation hints.
+        if (this._errors.length > 0) {
+            throw new Error('Parsing stats failed.');
         }
 
         return json;
@@ -262,14 +277,18 @@ class SheetWidget extends LitElement {
         btnCancel.disabled = true;
         btnUpdate.disabled = true;
 
-        // TODO: try/catch w/ form validation.
-        const newstats = this.statsToJson(stats);
+        this._errors.length = 0;
 
         try {            
+            const newstats = this.statsToJson(stats);
             await this._context.updateStats(newstats);
             this._context.data().stats = newstats;
             this._fireComplete();
         } finally {
+            if (this._errors.length !== 0) {
+                this.requestUpdate();
+            }
+
             textarea.disabled = false;
             btnCancel.disabled = false;
             btnUpdate.disabled = false;
@@ -295,7 +314,7 @@ class SheetWidget extends LitElement {
 
     _statsToNormalizedLookup() {
         const stats = this._context.data().stats;
-        const rxName = /^([a-zA-Z]+)\s*(\[.*\])?$/;
+        const rxName = /^([a-zA-Z\s]+)(\[.*\])?$/;
 
         // Set of stat names that are never duplicated. Others get put in a list of "other".
         const distinctStats = new Set(ATTRIBUTES.concat(
@@ -306,7 +325,7 @@ class SheetWidget extends LitElement {
 
         for (const [name, dots] of Object.entries(stats)) {
             const unpacked = name.match(rxName);
-            const unpacked_name = unpacked[1].toLowerCase();
+            const unpacked_name = unpacked[1].toLowerCase().trim();
             const unpacked_qual = unpacked[2] && unpacked[2].replaceAll('[', '').replaceAll(']', '');
 
             if (distinctStats.has(unpacked_name)) {
@@ -450,6 +469,15 @@ class SheetWidget extends LitElement {
 
     render() {
         if (this.edit) {
+            const errorFeedback = [];
+            if (this._errors.length > 0) {
+                errorFeedback.push(...this._errors.map(x => html`
+                    <div class="edit-sheet-err">
+                        ⚠️ Didn't recognize: <span class="edit-sheet-err-ex">${x}<span>
+                    </div>
+                `));
+            }
+
             return html`
             <div class="edit-sheet-instructions">
                 <p>To provide a reference for the Storyteller, you can enter your stats below, one on each line. For example:</p>
@@ -463,6 +491,7 @@ class SheetWidget extends LitElement {
             </div>
             <div class="edit-sheet">
                 <textarea id="stats-text" .value=${this._sheetToText()}></textarea>
+                ${errorFeedback}
                 <div class="button-container">
                     <button id="stats-cancel"
                     @click=${this._handleCancel}>Cancel</button>
