@@ -48,6 +48,9 @@ if (setupKey === null) {
 //
 // downtime:<key> -> [stream] downtime_uid, ?proposal, ?staff_notes, ?is_complete (bool)
 // (note: merge all entries with the same downtime_uid to get current result)
+//
+// setup-user -> [string] initial staff key | ''
+// publishing-watermark -> [string] current watermark for published journal entries.
 
 //
 // Utility methods.
@@ -161,7 +164,14 @@ async function authorizeStaff(req, res) { // return async<{key, name, is_admin, 
 }
 
 async function getCharacterTags(key) { // returns async <[tag, ...]>
-    return await redisClient.sMembers('character-tags:' + key);
+    const explicitTags = await redisClient.sMembers('character-tags:' + key);
+
+    // Also include the "everyone" tag without having to add it to all players.
+    return explicitTags.concat(['everyone']);
+}
+
+async function getPublishedWatermarkMillis() { // returns async Number ts millis
+    return Number((await redisClient.get('publishing-watermark')) || "0");
 }
 
 // TODO: set starting key to now - 60d
@@ -292,16 +302,21 @@ function handleAsync(fn) {
 
 app.get('/api/playerData', handleAsync(async (req, res) => {
     const character = await authorizeCharacter(req, res);
-    const tags = await getCharacterTags(character.key);
+    const tags = await getCharacterTags(character.key);    
     const worldJournal = await getVisibleJournalEntries(tags);
     const personalJournal = await getPersonalJournalEntries(character.key);
     const downtime = await getCharacterDowntime(character.key);
+
+    // Filter out unpublished entries.
+    const journalCandidates = worldJournal.concat(personalJournal);
+    const watermark = await getPublishedWatermarkMillis();
+    const publishedJournal = journalCandidates.filter(x => Number(x.timestamp) < watermark);
 
     const json = {
         "player_name": character.player_name,
         "shadow_name": character.shadow_name,
         "stats": character.stats,
-        "journal": worldJournal.concat(personalJournal),
+        "journal": publishedJournal,
         "downtime": downtime
     };
 
@@ -334,8 +349,11 @@ app.get('/api/staffData', handleAsync(async (req, res) => {
 
     const journal = await getVisibleJournalEntries();
 
+    const watermark = await getPublishedWatermarkMillis();
+
     const json = {
         "iam": staff.name,
+        "watermark": watermark,
         "characters": characters,
         "journal": journal
     };
@@ -479,6 +497,12 @@ app.post('/api/removeTags', handleAsync(async (req, res) => {
 
     await redisClient.sRem('character-tags:' + player_key, req.body.tags);
 
+    res.sendStatus(200);
+}));
+
+app.post('/api/releaseJournalDrafts', handleAsync(async (req, res) => {
+    await authorizeStaff(req, res);
+    await redisClient.set('publishing-watermark', String(Date.now()));
     res.sendStatus(200);
 }));
 
