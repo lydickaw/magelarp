@@ -484,7 +484,7 @@ app.post('/api/addTags', handleAsync(async (req, res) => {
     const player_key = requireStringField(req.body, 'player_key');
     const tags = requireArrayField(req.body, 'tags');
 
-    await redisClient.sAdd('character-tags:' + player_key, req.body.tags);
+    await redisClient.sAdd('character-tags:' + player_key, tags);
 
     res.sendStatus(200);
 }));
