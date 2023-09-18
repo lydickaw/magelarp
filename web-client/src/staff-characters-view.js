@@ -32,13 +32,14 @@ class StaffCharactersView extends LitElement {
             font-size: 14px;
             background-color: #000000;
             color: #FFFFFF;
-            dsplay: inline-block;
+            display: inline-block;
             padding-left: 6px;
             padding-right: 6px;
             padding-top: 1px;
             padding-bottom: 1px;
             margin-right: 6px;
             margin-top: 4px;
+            white-space: nowrap;
         }
 
         input.add-tag {

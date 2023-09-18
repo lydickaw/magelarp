@@ -154,6 +154,55 @@ class SheetWidget extends LitElement {
         background-color: #f5f5f5;
         border-color: #000000;
     }
+
+    div.edit-sheet-instructions {        
+        font-family: "EB Garamond", serif;
+        font-weight: 500;
+        margin-bottom: 16px;
+    }
+
+    div.edit-sheet-example {
+        display: inline-block;
+        font-family: "Courier Prime", monospace;
+        font-size: 13px;
+        border: #aaaaaa solid 1px;
+        padding: 3px;
+        background-color: #eeeeee;
+    }
+
+    @media(max-width: 940px) {
+        div.button-container {
+            width: 100%;
+        }
+
+        #stats-text {
+            width: 100%;
+        }
+
+        div.stats-container {
+            max-width: 294px;
+        }
+
+        div.stat-box {
+            min-width: 98px;
+        }
+
+        div.stat-dots {
+            font-size: 24px;
+        }
+
+        div.stat-name {
+            font-size: 12px;
+            padding-left: 1px;
+            max-width: 97px;
+        }
+
+        div.stat-qual {
+            font-size: 11px;
+            padding-left: 1px;
+            max-width: 97px;
+        }
+    }
   `;
 
     constructor() {
@@ -402,6 +451,16 @@ class SheetWidget extends LitElement {
     render() {
         if (this.edit) {
             return html`
+            <div class="edit-sheet-instructions">
+                <p>To provide a reference for the Storyteller, you can enter your stats below, one on each line. For example:</p>
+                <div class="edit-sheet-example">Intelligence: 3</div>
+                <p>For skill specalities or qualified merits, you can include additional information in brackets:</p>
+                <div class="edit-sheet-example">
+                    <div>Expression [sp: dance]: 2</div>
+                    <div>Artifact [haunted trombone]: 3</div>
+                </div>
+                <p>Rotes, Equipment, and Derived stats (ex: defense, mana) are not currently supported.</p>
+            </div>
             <div class="edit-sheet">
                 <textarea id="stats-text" .value=${this._sheetToText()}></textarea>
                 <div class="button-container">

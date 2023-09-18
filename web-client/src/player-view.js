@@ -9,8 +9,6 @@ class PlayerView extends LitElement {
         _editStats: { state: true }
     }
 
-    // TODO: share common styles
-    // TODO: handle overrides for phones.
     static styles = css`
         main {
             background-color: #FFFFFF; 
@@ -71,6 +69,14 @@ class PlayerView extends LitElement {
             font-family: 'Indie Flower', cursive;
             font-weight: 400;            
             text-transform: none;
+        }
+
+        div.empty-journal {
+            font-family: "EB Garamond", serif;
+            font-style: italic;     
+            font-weight: 500;
+            margin-bottom: 24px;
+            margin-left: 20px;
         }
 
         div.journal-entry {
@@ -180,14 +186,20 @@ class PlayerView extends LitElement {
                 width: initial;
                 margin: 4px;
                 padding-left: 8px;
+                padding-right: 8px;
             }
 
             h1 {
                 margin-left: initial;
+                text-align: right;
             }
 
             footer {
                 width: initial;
+            }
+            
+            div.empty-journal {
+                margin-left: initial;
             }
 
             div.journal-entries h2 {
@@ -215,12 +227,14 @@ class PlayerView extends LitElement {
                 text-align: initial;
             }
 
-            div.button-container {
+            div.stats-button-container {
                 width: initial;
+                padding-right: initial;
             }
 
             div.sheet-container {
                 margin-left: initial;
+                margin-bottom: 20px;
             }
         }
   `;
@@ -350,6 +364,14 @@ class PlayerView extends LitElement {
             journal_entries.push(html`</div>`);
         }
 
+        if (journal_entries.length === 0) {
+            journal_entries.push(html`
+                <div class="empty-journal">
+                    Your journal is currently empty, but the Storyteller will fill it with interesting leads, past events, and downtime results as your adventures continue!
+                </div>            
+            `);
+        }
+
         const downtime_entries = [];
         for (const dt of data.downtime) {
             const waiting_for_player = (dt.staff_updated_ts > dt.player_updated_ts);
@@ -379,9 +401,6 @@ class PlayerView extends LitElement {
         }
 
         // TODO:
-        // - Fill with pretty bg.
-        // - border with blue-to-green (mage colors) gradient
-        // - use media selectors to make it look ok on mobile.
         // - add contact info for staff (footer)
         // - add logout button to footer
         // - show something nice if no journal entries are visible.
@@ -411,7 +430,9 @@ class PlayerView extends LitElement {
                 @complete=${this._handleEditStatsComplete} ?edit=${this._editStats}></sheet-widget>            
         </div>
         <div class="stats-button-container">
-            <button @click=${this._handleEditStats}>Edit Stats</button>
+            <button 
+                style="${this._editStats ? 'display: none' : ''}"
+                @click=${this._handleEditStats}>Edit Stats</button>
         </div>
       </main>
 
