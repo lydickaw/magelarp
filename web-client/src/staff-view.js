@@ -12,7 +12,7 @@ class StaffView extends LitElement {
     static styles = css`
         main {
             background-color: #FFFFFF; 
-            width: 980px;
+            width: 940px;
             margin: 0 auto;
             margin-top: 22px;
             padding-left: 20px;

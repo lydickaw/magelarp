@@ -14,7 +14,7 @@ class PlayerView extends LitElement {
     static styles = css`
         main {
             background-color: #FFFFFF; 
-            width: 980px;
+            width: 940px;
             margin: 0 auto;
             margin-top: 22px;
             padding-bottom: 12px;
@@ -173,6 +173,55 @@ class PlayerView extends LitElement {
             display: inline-block;
             margin-left: 12px;
             margin-right: 12px;
+        }
+
+        @media(max-width: 940px) {
+            main {
+                width: initial;
+                margin: 4px;
+                padding-left: 8px;
+            }
+
+            h1 {
+                margin-left: initial;
+            }
+
+            footer {
+                width: initial;
+            }
+
+            div.journal-entries h2 {
+                margin-left: initial;
+            }
+
+            div.journal-text {
+                margin-left: initial;
+            }
+            
+            div.downtime-text {
+                margin-left: initial;
+            }
+
+            div.downtime-editor {
+                margin-left: initial;
+            }
+
+            div.downtime-editor textarea {
+                width: 100%
+            }
+
+            div.entry-date {
+                float: initial;
+                text-align: initial;
+            }
+
+            div.button-container {
+                width: initial;
+            }
+
+            div.sheet-container {
+                margin-left: initial;
+            }
         }
   `;
 

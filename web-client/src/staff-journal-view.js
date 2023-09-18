@@ -122,6 +122,8 @@ class StaffJournalView extends LitElement {
             font-style: italic;
             font-family: 'EB Garamond';
             font-size: 17px;
+            border-top: black solid 2px;
+            padding-top: 12px;
         }
   `;
 

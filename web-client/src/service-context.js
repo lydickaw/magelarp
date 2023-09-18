@@ -176,6 +176,33 @@ class LarpServiceContext extends EventTarget {
         }
     }
 
+    async addCharacter(shadowName, playerName) {
+        const body = JSON.stringify({ player_name: playerName, shadow_name: shadowName });
+        const url = 'api/newPlayer?key=' + this._staff_key;
+        const res = await fetch(url, {
+            method: 'POST',
+            mode: 'same-origin',
+            cache: 'no-cache',
+            headers: { 'Content-Type': 'application/json' },
+            body: body
+        });
+
+        if (!res.ok) {
+            this._error = await res.text();
+            throw new Error('Request failed: ' +  this._error);
+        }
+
+        const responseBody = await res.json();
+        return {
+            player_name: playerName,
+            shadow_name: shadowName,
+            stats: {},
+            key: responseBody.key,
+            tags: [],
+            downtime: []
+        };
+    }
+
     async refresh() {
         const url = this.isStaff() ? ('api/staffData?key=' + this._staff_key) : ('api/playerData?key=' + this._player_key);
         const res = await fetch(url);
