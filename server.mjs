@@ -164,10 +164,7 @@ async function authorizeStaff(req, res) { // return async<{key, name, is_admin, 
 }
 
 async function getCharacterTags(key) { // returns async <[tag, ...]>
-    const explicitTags = await redisClient.sMembers('character-tags:' + key);
-
-    // Also include the "everyone" tag without having to add it to all players.
-    return explicitTags.concat(['everyone']);
+    return await redisClient.sMembers('character-tags:' + key);
 }
 
 async function getPublishedWatermarkMillis() { // returns async Number ts millis
@@ -302,7 +299,7 @@ function handleAsync(fn) {
 
 app.get('/api/playerData', handleAsync(async (req, res) => {
     const character = await authorizeCharacter(req, res);
-    const tags = await getCharacterTags(character.key);    
+    const tags = (await getCharacterTags(character.key)).concat(['everyone']);
     const worldJournal = await getVisibleJournalEntries(tags);
     const personalJournal = await getPersonalJournalEntries(character.key);
     const downtime = await getCharacterDowntime(character.key);
