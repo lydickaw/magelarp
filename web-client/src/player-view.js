@@ -253,6 +253,11 @@ class PlayerView extends LitElement {
         const btn = this.renderRoot.querySelector('#downtime_proposal_btn');
         const proposal = textarea.value;
 
+        // Ignore attempts to submit empty downtimes.
+        if (textarea.value.trim().length === 0) {
+            return;
+        }
+
         textarea.disabled = true;
         btn.disabled = true;
 
