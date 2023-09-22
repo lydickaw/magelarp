@@ -80,7 +80,7 @@ class SheetWidget extends LitElement {
     }
 
     div.stat-box-10 {
-        width: 240px;
+        width: 280px;
     }
 
     div.stat-dots {
@@ -199,6 +199,10 @@ class SheetWidget extends LitElement {
 
         div.stat-box {
             min-width: 98px;
+        }
+
+        div.stat-box-10 {
+            min-width: 196px;
         }
 
         div.stat-dots {
@@ -430,16 +434,20 @@ class SheetWidget extends LitElement {
             );
         };        
 
-        const merits = [];
+        const merits5 = [];
+        const merits10 = [];
         const visitMerits = (name, val) => {
-            merits.push(
-                html`
-                <div class="stat-box">
-                    <div class="stat-dots">${this._renderDots(val.dots)}</div>                    
-                    <div class="stat-name">${name}</div>
-                    <div class="stat-qual">${val.qual}</div>
-                </div>`
-            );
+            const inner = html`
+                <div class="stat-dots">${this._renderDots(val.dots)}</div>                    
+                <div class="stat-name">${name}</div>
+                <div class="stat-qual">${val.qual}</div>
+            `;
+
+            if (val.dots > 5) {
+                merits10.push(html`<div class="stat-box-10">${inner}</div>`);
+            } else {
+                merits5.push(html`<div class="stat-box">${inner}</div>`);
+            }
         }
 
         this._visitStats(lookup, other, visitAttributes, visitSkills, visitArcana, visitMerits);
@@ -462,7 +470,8 @@ class SheetWidget extends LitElement {
 
         <h2>Merits</h2>
         <div class="stats-container">
-            ${merits}        
+            ${merits5}
+            ${merits10}
         </div>
         `;
     }

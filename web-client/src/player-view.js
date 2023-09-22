@@ -227,6 +227,10 @@ class PlayerView extends LitElement {
                 text-align: initial;
             }
 
+            div.button-container {
+                width: initial;
+            }
+
             div.stats-button-container {
                 width: initial;
                 padding-right: initial;
