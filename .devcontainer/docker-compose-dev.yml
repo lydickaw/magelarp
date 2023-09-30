@@ -15,3 +15,6 @@ services:
     command: redis-server --save 60 1 --loglevel warning
     volumes:
       - redis-data:/data
+
+volumes:
+  redis-data:
